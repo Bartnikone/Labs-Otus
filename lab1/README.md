@@ -72,37 +72,67 @@ router bgp 65001
    neighbor 10.0.0.5 remote-as 65103
    
 !
+
    address-family ipv4
+
       neighbor 10.0.0.1 activate
+
       neighbor 10.0.0.3 activate
+
       neighbor 10.0.0.5 activate
+
       network 10.1.1.1/32
 
+
 Типовая конфигурация Leaf:
+
 interface Ethernet1
+
    description Up_Spine1
+
    no switchport
+
    ip address 10.0.0.3/31
+
 !
+
 interface Ethernet2
+
    description Up_Spine2
+
    no switchport
+
    ip address 10.0.0.9/31
+
 interface Loopback0
+
    ip address 10.1.1.12/32
+
 !
+
 ip routing
+
 !
+
 router bgp 65102
+
    neighbor 10.0.0.2 remote-as 65001
+
    neighbor 10.0.0.8 remote-as 65002
+
    !
+
    address-family ipv4
+
       neighbor 10.0.0.2 activate
+
       neighbor 10.0.0.8 activate
+
       network 10.1.1.12/32
 
+
 Вывод таблицы маршрутизации с Leaf-1:
+
 Gateway of last resort is not set
 
  C        10.0.0.0/31 is directly connected, Ethernet1

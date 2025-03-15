@@ -132,7 +132,7 @@ router bgp 65102
 
 
 Вывод таблицы маршрутизации с Leaf-1:
-
+```bash
 Gateway of last resort is not set
 
 | C        10.0.0.0/31 is directly connected, Ethernet1
@@ -148,7 +148,7 @@ Gateway of last resort is not set
 | B E      10.1.1.12/32 [200/0] via 10.0.0.0, Ethernet1
 
 | B E      10.1.1.13/32 [200/0] via 10.0.0.0, Ethernet1
-
+```
 Как видим, мы получили адреса Loopback каждого роутера по eBgp.
 
 Проверим сетевую связность между Loopback-адресами Leaf-1 - Leaf-3:

@@ -24,30 +24,54 @@
 10.1.1.0/24
 
 Типовая конфигурация Spine:
+
 interface Ethernet1
+
    description low_Leaf1
+
    no switchport
+
    ip address 10.0.0.0/31
+
 !
+
 interface Ethernet2
+
    description low_Leaf2
+
    no switchport
+
    ip address 10.0.0.2/31
+
 !
+
 interface Ethernet3
+
    description low_Leaf3
+
    no switchport
+
    ip address 10.0.0.4/31
+
 interface Loopback0
+
    ip address 10.1.1.1/32
+
 !
+
 ip routing
+
 !
+
 router bgp 65001
+
    neighbor 10.0.0.1 remote-as 65101
+
    neighbor 10.0.0.3 remote-as 65102
+
    neighbor 10.0.0.5 remote-as 65103
-   !
+   
+!
    address-family ipv4
       neighbor 10.0.0.1 activate
       neighbor 10.0.0.3 activate

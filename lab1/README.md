@@ -136,20 +136,33 @@ router bgp 65102
 Gateway of last resort is not set
 
  C        10.0.0.0/31 is directly connected, Ethernet1
+
  C        10.0.0.6/31 is directly connected, Ethernet2
+
  B E      10.1.1.1/32 [200/0] via 10.0.0.0, Ethernet1
+
  B E      10.1.1.2/32 [200/0] via 10.0.0.6, Ethernet2
+
  C        10.1.1.11/32 is directly connected, Loopback0
+
  B E      10.1.1.12/32 [200/0] via 10.0.0.0, Ethernet1
+
  B E      10.1.1.13/32 [200/0] via 10.0.0.0, Ethernet1
 
 Как видим, мы получили адреса Loopback каждого роутера по eBgp.
 
 Проверим сетевую связность между Loopback-адресами Leaf-1 - Leaf-3:
+
 Leaf-1#ping 10.1.1.13 source 10.1.1.11
+
 PING 10.1.1.13 (10.1.1.13) from 10.1.1.11 : 72(100) bytes of data.
+
 80 bytes from 10.1.1.13: icmp_seq=1 ttl=63 time=43.0 ms
+
 80 bytes from 10.1.1.13: icmp_seq=2 ttl=63 time=37.7 ms
+
 80 bytes from 10.1.1.13: icmp_seq=3 ttl=63 time=33.0 ms
+
 80 bytes from 10.1.1.13: icmp_seq=4 ttl=63 time=26.1 ms
+
 80 bytes from 10.1.1.13: icmp_seq=5 ttl=63 time=39.1 ms

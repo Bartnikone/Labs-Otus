@@ -166,3 +166,12 @@ PING 10.1.1.13 (10.1.1.13) from 10.1.1.11 : 72(100) bytes of data.
 80 bytes from 10.1.1.13: icmp_seq=4 ttl=63 time=26.1 ms
 
 80 bytes from 10.1.1.13: icmp_seq=5 ttl=63 time=39.1 ms
+
+```bash
+# Проверка интерфейсов на Cisco-роутере
+Router> show ip interface brief
+
+Interface       IP-Address      OK? Method Status                Protocol
+Gi0/0          192.168.1.1     YES manual up                    up
+Gi0/1          unassigned      YES manual administratively down down
+```

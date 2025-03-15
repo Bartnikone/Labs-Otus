@@ -16,15 +16,15 @@
 ![image](https://github.com/user-attachments/assets/d4d73e7d-2927-4c47-95f3-e11b390bcd4a)
 
 Адресное пространство для link интерфейсов
-
+```bash
 10.0.0.0/24
-
+```
 Адресное пространство для loopback интерфейсов
-
+```bash
 10.1.1.0/24
-
+```
 Типовая конфигурация Spine:
-
+```bash
 interface Ethernet1
 
    description low_Leaf1
@@ -82,10 +82,10 @@ router bgp 65001
       neighbor 10.0.0.5 activate
 
       network 10.1.1.1/32
-
+```
 
 Типовая конфигурация Leaf:
-
+```bash
 interface Ethernet1
 
    description Up_Spine1
@@ -129,8 +129,7 @@ router bgp 65102
       neighbor 10.0.0.8 activate
 
       network 10.1.1.12/32
-
-
+```
 Вывод таблицы маршрутизации с Leaf-1:
 ```bash
 Gateway of last resort is not set
@@ -167,5 +166,5 @@ PING 10.1.1.13 (10.1.1.13) from 10.1.1.11 : 72(100) bytes of data.
 
 80 bytes from 10.1.1.13: icmp_seq=5 ttl=63 time=39.1 ms
 ```
-```bash
+
 

@@ -265,7 +265,7 @@ Spine-2(config)#int ethernet 3
 
 Spine-2(config-if-Et3)#shutdown
 ```
-Далее смотрим, что 8.8.8.8 теперь прилетает нам со Spine_1:
+Далее смотрим, что 8.8.8.8 теперь прилетает нам со Spine_1 на Leaf_1:
 
 ### Type-5 AS External Link States
 

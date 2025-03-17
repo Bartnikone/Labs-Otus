@@ -1,2 +1,2 @@
 # Otus
-Lab1
+Otus-labs

@@ -259,3 +259,32 @@ PING 10.1.1.11 (10.1.1.11) from 10.1.1.13 : 72(100) bytes of data.
 
 ```
 
+И ради эксперимента потушим на Spine_2 eth3  в сторону Leaf_3 eth2, чтобы Spine_1 занялся распространением LSA 5 о доступности 8.8.8.8 через свой стык с area 3:
+```bash
+Spine-2(config)#int ethernet 3
+
+Spine-2(config-if-Et3)#shutdown
+```
+Далее смотрим, что 8.8.8.8 теперь прилеает нам со Spine_1:
+
+### Type-5 AS External Link States
+
+| Link ID | ADV Router | Age | Seq# | Checksum | Tag |
+|---------|------------|-----|------|----------|-----|
+| 8.8.8.8 | 1.1.1.1    | 320 | 0x80000001 | 0xb9ba | 0   |
+
+Проверим связность тех же Lo0 от Leaf_3 до Leaf_1:
+```bash
+Leaf-3#ping 10.1.1.11 source 10.1.1.13
+PING 10.1.1.11 (10.1.1.11) from 10.1.1.13 : 72(100) bytes of data.
+
+80 bytes from 10.1.1.11: icmp_seq=1 ttl=63 time=24.0 ms
+
+80 bytes from 10.1.1.11: icmp_seq=2 ttl=63 time=19.2 ms
+
+80 bytes from 10.1.1.11: icmp_seq=3 ttl=63 time=15.6 ms
+
+80 bytes from 10.1.1.11: icmp_seq=4 ttl=63 time=17.2 ms
+
+80 bytes from 10.1.1.11: icmp_seq=5 ttl=63 time=17.5 ms
+```

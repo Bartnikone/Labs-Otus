@@ -182,7 +182,9 @@ AFI.AreaID.SystemID.SEL
 Значение `00` указывает, что это адрес узла (роутера), а не сервиса.
 
 
-Итак, проверим, что все соседства поднялись на Spine-1:
+
+
+##  Итак, проверим, что все соседства поднялись на Spine-1:
 ### IS-IS Neighbors for Instance Test on Spine-1
 
 | Instance | VRF     | System Id | Type | Interface | SNPA | State | Hold Time | Circuit Id |

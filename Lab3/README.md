@@ -219,5 +219,37 @@ Spine-1(config-route-map-Test_ISIS)#exit
 
 Spine-1(config)#ip prefix-list ALL seq 5 permit 0.0.0.0/0 le 32
 ```
+И теперь проверим, что знают наши Leaf_1/2:
+### Routing Table
 
+| Route Type | Destination   | Metric     | Next Hop  | Interface  |
+|------------|---------------|------------|-----------|------------|
+| C          | 10.0.0.0/31   | -          | -         | Ethernet1  |
+| I L1       | 10.0.0.2/31   | [115/20]   | 10.0.0.0  | Ethernet1  |
+| I L1       | 10.0.0.4/31   | [115/20]   | 10.0.0.0  | Ethernet1  |
+| C          | 10.0.0.6/31   | -          | -         | Ethernet2  |
+| I L1       | 10.0.0.8/31   | [115/20]   | 10.0.0.6  | Ethernet2  |
+| I L1       | 10.0.0.10/31  | [115/20]   | 10.0.0.6  | Ethernet2  |
+| I L1       | 10.1.1.1/32   | [115/20]   | 10.0.0.0  | Ethernet1  |
+| I L1       | 10.1.1.2/32   | [115/20]   | 10.0.0.6  | Ethernet2  |
+| C          | 10.1.1.11/32  | -          | -         | Loopback0  |
+| I L1       | 10.1.1.12/32  | [115/30]   | 10.0.0.0  | Ethernet1  |
+|            |               |            | 10.0.0.6  | Ethernet2  |
+| I L1       | 10.1.1.13/32  | [115/30]   | 10.0.0.0  | Ethernet1  |
+
+Теперь мы знаем, как пройти к Leaf_3:
+```bash
+Leaf-1#ping 10.1.1.13
+PING 10.1.1.13 (10.1.1.13) 72(100) bytes of data.
+
+80 bytes from 10.1.1.13: icmp_seq=1 ttl=63 time=25.8 ms
+
+80 bytes from 10.1.1.13: icmp_seq=2 ttl=63 time=19.9 ms
+
+80 bytes from 10.1.1.13: icmp_seq=3 ttl=63 time=15.9 ms
+
+80 bytes from 10.1.1.13: icmp_seq=4 ttl=63 time=20.4 ms
+
+80 bytes from 10.1.1.13: icmp_seq=5 ttl=63 time=15.8 ms
+```
 

@@ -23,7 +23,7 @@ router bgp 65000
    maximum-paths 10 ecmp 10 - команда "maximum-paths 10" позволяет сохранить в нашем случае 10 путей в таблице BGP для какого-либо префикса, полученного от Leaf. А команда "ecmp 10" позволяет добавить их в FIB.
    neighbor LEAFS peer group - создаем группу соседей с именем LEAFS
    neighbor LEAFS bfd - включаем BFD для всех наших соседей
-   neighbor LEAFS timers 3 9
+   neighbor LEAFS timers 3 9 - Keepalive 3, Hold 9
    neighbor LEAFS route-map RM_LEAFS in - принимаем лишь адреса Lo0
    neighbor LEAFS maximum-routes 1000 - лимит маршрутов(защита в случае DDos)
    neighbor 10.0.0.1 peer group LEAFS
@@ -36,5 +36,29 @@ router bgp 65000
    address-family ipv4
       neighbor LEAFS activate - и активируем соседа в AF ipv4
 ```
+И конфигуарция для Leaf-1:
 
+```bash
 
+ip prefix-list PL_CONNECT seq 10 permit 10.1.1.8/29 le 32
+!
+route-map RM_REDIS_CON permit 10
+   match ip address prefix-list PL_CONNECT
+!
+router bgp 65001
+   router-id 10.1.1.11
+   no bgp default ipv4-unicast
+   maximum-paths 10 ecmp 10
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65000
+   neighbor SPINES bfd
+   neighbor SPINES timers 3 9
+   neighbor SPINES maximum-routes 1000
+   neighbor 10.0.0.0 peer group SPINES
+   neighbor 10.0.0.6 peer group SPINES
+   redistribute connected route-map RM_REDIS_CON
+   !
+   address-family ipv4
+      neighbor SPINES activate
+!
+```

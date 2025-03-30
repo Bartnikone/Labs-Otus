@@ -20,7 +20,7 @@ route-map RM_LEAFS permit 10 - создадим RM и свяжем ее с PL
 router bgp 65000
    router-id 10.1.1.1
    no bgp default ipv4-unicast - отключаем автоматический переход к IPv4
-   maximum-paths 10 ecmp 10 - команда "maximum-paths 10" позволяет сохранить в нашем случае 10 путей в таблице BGP для какого-либо префикса, полученного от Leaf. А команда "ecmp 10" позволяет добавить их в FIB.
+   maximum-paths 10 ecmp 10 - включаем ECMP
    neighbor LEAFS peer group - создаем группу соседей с именем LEAFS
    neighbor LEAFS bfd - включаем BFD для всех наших соседей
    neighbor LEAFS timers 3 9 - Keepalive 3, Hold 9
@@ -62,3 +62,28 @@ router bgp 65001
       neighbor SPINES activate
 !
 ```
+
+Команда "no bgp default ipv4-unicast" в глобальной конфигурации BGP нужна для того, чтобы исключить автоматическую активацию IPv4 для всех соседей. Соседи не будут пытаться активировать сессии Ipv4, если мы явно не активируем этих соседей в AF IPv4. Зачем это нужно? Чтобы четко контролировать, какие AF нам нужны для работы underlay и overlay.
+
+Для включения ECMP прописываем в BGP :"maximum-paths 10 ecmp 10" - команда "maximum-paths 10" позволяет сохранить в нашем случае 10 путей в таблице BGP для какого-либо префикса, полученного от Leaf. А команда "ecmp 10" позволяет добавить их в FIB.
+
+neighbor SPINES timers 3 9 - меняем таймеры со стандартных 60/180 на 3 секунды Keepalive и 9 секунды Hold. Более агрессивные таймеры для скорости реакции на сессиях.
+
+И задаем максимальное количество маршрутов для принятия до 1000 - neighbor SPINES maximum-routes 1000. В этой лабораторной, конечно, число слишком высокое, можно было бы на данном этапе уменьшить до 10. Spine принимают по 3 префикса /32(адреса Lo0 на Leaf), а Leaf принимают по 2 префикса /32 от соседних Leaf. Число в 1000 - "запас прочности" с заделом на будущее).
+
+Посмотрим на таблицу маршрутов на Leaf-1:
+
+Gateway of last resort is not set
+
+```bash
+ C        10.0.0.0/31 is directly connected, Ethernet1
+ C        10.0.0.6/31 is directly connected, Ethernet2
+ C        10.1.1.11/32 is directly connected, Loopback0
+ B E      10.1.1.12/32 [200/0] via 10.0.0.0, Ethernet1
+                               via 10.0.0.6, Ethernet2
+ B E      10.1.1.13/32 [200/0] via 10.0.0.0, Ethernet1
+                               via 10.0.0.6, Ethernet2
+```
+
+Как видно из таблицы, нам доступны оба соседних Lo0 от Leaf-2/3 сразу через двух Spine. ECMP работает.
+

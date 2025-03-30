@@ -1,1 +1,40 @@
+Цель лабораторной работы:
+1. Настроить протокол eBGP.
+2. Ограничить передаваемую информацию между Leaf до адресов Loopback.
+3. Настроить peer group для Spine/Leaf для более удобного управления соседями.
+4. Включить ECMP и проверить, что адреса Loopback Leaf доступны сразу через два Spine.
+
+Итак, схема пока что остается неизменной:
+
+![image](https://github.com/user-attachments/assets/31267cb2-e537-48a4-9f96-07ad4c84fce0)
+
+Рассмотрим конфигурацию Spine на примере Spine-1:
+
+```bash
+
+ip prefix-list PL_LO_LEAFS seq 10 permit 10.1.1.8/29 le 32 - создадим PL для разрешения лишь адресов Lo0 от наших трех Leaf
+!
+route-map RM_LEAFS permit 10 - создадим RM и свяжем ее с PL
+   match ip address prefix-list PL_LO_LEAFS
+!
+router bgp 65000
+   router-id 10.1.1.1
+   no bgp default ipv4-unicast - отключаем автоматический переход к IPv4
+   maximum-paths 10 ecmp 10 - команда "maximum-paths 10" позволяет сохранить в нашем случае 10 путей в таблице BGP для какого-либо префикса, полученного от Leaf. А команда "ecmp 10" позволяет добавить их в FIB.
+   neighbor LEAFS peer group - создаем группу соседей с именем LEAFS
+   neighbor LEAFS bfd - включаем BFD для всех наших соседей
+   neighbor LEAFS timers 3 9
+   neighbor LEAFS route-map RM_LEAFS in - принимаем лишь адреса Lo0
+   neighbor LEAFS maximum-routes 1000 - лимит маршрутов(защита в случае DDos)
+   neighbor 10.0.0.1 peer group LEAFS
+   neighbor 10.0.0.1 remote-as 65001
+   neighbor 10.0.0.3 peer group LEAFS
+   neighbor 10.0.0.3 remote-as 65002
+   neighbor 10.0.0.5 peer group LEAFS
+   neighbor 10.0.0.5 remote-as 65003
+   !
+   address-family ipv4
+      neighbor LEAFS activate - и активируем соседа в AF ipv4
+```
+
 

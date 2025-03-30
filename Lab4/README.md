@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/9a6b0f38-5c24-440b-9f05-a772892f2025)Цель лабораторной работы:
+Цель лабораторной работы:
 1. Настроить протокол eBGP.
 2. Ограничить передаваемую информацию между Leaf до адресов Loopback.
 3. Настроить peer group для Spine/Leaf для более удобного управления соседями.
@@ -89,7 +89,9 @@ Gateway of last resort is not set
 
 Ну и update, которые Spine-1/2 прислали для Leaf-1, когда получили Lo0 от Leaf-3:
 Spine-1:
+
 ![image](https://github.com/user-attachments/assets/244e1b82-b2f8-43d1-86a9-94e05526c8a9)
 
 Spine-2:
+
 ![image](https://github.com/user-attachments/assets/37b7837d-38f2-46b8-989e-fed50fe25707)

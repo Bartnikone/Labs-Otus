@@ -13,7 +13,7 @@
 
 *Сразу небольшая ремарочка, чтобы на Arista можно было поднимать соседство по BGP в отличных от ipv4 AF, нужно дать команду :"service routing protocols model multi-agent" и отправить устройства в ребут.*
 
-### Пример конфигурации со Spine-1:
+# Пример конфигурации со Spine-1:
 
 ```bash
 ip prefix-list PL_Overlay seq 11 permit 10.1.1.0/24 le 32 - разрешим для удобства тестирования всю /24 подсеть.
@@ -71,7 +71,7 @@ router bgp 65000
 
 *neighbor EVPN_peers send-community extended - позволяет EVPN передавать Route Target (RT) и Route Distinguisher (RD).*
 
-### И пример конфигурации с Leaf-1:
+# И пример конфигурации с Leaf-1:
 
 ```bash
 ip prefix-list PL_Overlay seq 11 permit 10.1.1.0/24 le 32
@@ -121,7 +121,7 @@ Neighbor	V	AS	MsgRcvd	MsgSent	InQ	OutQ	Up/Down	State	PfxRcd	PfxAcc
 10.1.1.2	4	65000	41	37	0	0	00:18:56	Estab	2	2
 ```
 
-### Затем нам необходимо сконфигурировать адресное пространство для наших клиентов:
+# Затем нам необходимо сконфигурировать адресное пространство для наших клиентов:
 ```bash
 PC1 - 192.168.0.2/24
 PC2 - 192.168.0.3/24
@@ -129,7 +129,7 @@ PC3 - 192.168.0.4/24
 ```
 Подключаем каждого клиента к eth3 каждого Leaf.
 
-### Далее прикладываю типовую настройку Leaf:
+# Далее прикладываю типовую настройку Leaf:
 ```bash
 interface Ethernet3
    description to_PC1
@@ -192,7 +192,7 @@ AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Li
 
 Видим, что mac'и изучены от других VTEP.
 
-### Проверим маршруты до самих VTEP:
+# Проверим маршруты до самих VTEP:
 
 ```bash
 
@@ -217,7 +217,7 @@ AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Li
                                  10.1.1.13             -       100     0       65000 65003 i
 ```
  
-### И прикладываю скрин update-сообщения BGP, в котором мы получаем mac-адрес PC2:
+# И прикладываю скрин update-сообщения BGP, в котором мы получаем mac-адрес PC2:
 
 ![image](https://github.com/user-attachments/assets/82441242-d0fc-4b7e-8209-9bec0e2e525a)
 

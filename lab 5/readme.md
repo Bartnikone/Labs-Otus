@@ -63,13 +63,13 @@ router bgp 65000
 
 Разберем основные команды:
 
-*neighbor EVPN_peers next-hop-unchanged - необходимый параметр, чтобы построить vxlan туннель между Lo0 Leaf'ов, нужно, чтобы Spine'ы не подменивали NH на свой собственный адрес, а передавали его без изменения. Это сработает, так как в AF ipv4 мы уже передали адреса Lo0 каждого Leaf, то есть NH будет доступен.
+*neighbor EVPN_peers next-hop-unchanged - необходимый параметр, чтобы построить vxlan туннель между Lo0 Leaf'ов, нужно, чтобы Spine'ы не подменивали NH на свой собственный адрес, а передавали его без изменения. Это сработает, так как в AF ipv4 мы уже передали адреса Lo0 каждого Leaf, то есть NH будет доступен.*
 
-neighbor EVPN_peers update-source Loopback0 - источник построения соседства eBGP - Lo0.
+*neighbor EVPN_peers update-source Loopback0 - источник построения соседства eBGP - Lo0.*
 
-neighbor EVPN_peers ebgp-multihop 3 - разрешает установку eBGP-сессий через 3 хопа. Так как мы строит сессии с Lo0, необходимый пункт.
+*neighbor EVPN_peers ebgp-multihop 3 - разрешает установку eBGP-сессий через 3 хопа. Так как мы строит сессии с Lo0, необходимый пункт.*
 
-neighbor EVPN_peers send-community extended - позволяет EVPN передавать Route Target (RT) и Route Distinguisher (RD).*
+*neighbor EVPN_peers send-community extended - позволяет EVPN передавать Route Target (RT) и Route Distinguisher (RD).*
 
 И пример конфигурации с Leaf-1:
 

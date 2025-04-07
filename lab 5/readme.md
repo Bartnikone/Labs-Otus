@@ -218,7 +218,16 @@ AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Li
                                  10.1.1.13             -       100     0       65000 65003 i
 ```
  
+И прикладываю скрин update-сообщения BGP, в котором мы получаем mac-адрес PC2:
 
+![image](https://github.com/user-attachments/assets/82441242-d0fc-4b7e-8209-9bec0e2e525a)
 
-
-
+Важные поля в нем:
+```bash
+Address family identifier (AFI): Layer-2 VPN (25) 
+Subsequent address family identifier (SAFI): EVPN (70) 
+Route Type: MAC Advertisement Route (2) 
+Route Distinguisher: 00010a01010c000a (10.1.1.12:10)
+Route Target: 10:1010 [Transitive 2-Octet AS-Specific]
+Encapsulation: VXLAN Encapsulation [Transitive Opaque]
+```

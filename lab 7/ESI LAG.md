@@ -229,3 +229,65 @@ router bgp 65001
       redistribute connected
       redistribute static
 ```
+
+Проверка состояния соседей в LACP:
+
+![image](https://github.com/user-attachments/assets/c4494c9e-5970-4294-99a7-d81a929615d2)
+
+
+# Теперь проверим, какие сообщения будут присланы на Leaf-3, если мы включим Po1/2 на Leaf-1:
+
+1)Итак, первый тип сообщений evpn - Ethernet Auto-Discovery (type 1), он используется для объявления доступности ES и управления DF.
+
+![image](https://github.com/user-attachments/assets/62d76799-94fa-4ce7-8e9b-6c524277f26c)
+
+2)И второй тип сообщения evpn для работы с Ethernet Segment - Ethernet Segment (type 4), с помощью него возможна синхронизация информации между PE-устройствами в Multi-Homing.
+
+![image](https://github.com/user-attachments/assets/e5468465-f34d-4d3c-a272-c649b1d2674f)
+
+# Осуществим проверку между l2vni:
+
+![image](https://github.com/user-attachments/assets/bf844eab-3b9f-4e9f-a989-002578e40a61)
+
+```bash
+VPCS> ping 192.168.10.13
+
+84 bytes from 192.168.10.13 icmp_seq=1 ttl=64 time=853.644 ms
+84 bytes from 192.168.10.13 icmp_seq=2 ttl=64 time=121.399 ms
+84 bytes from 192.168.10.13 icmp_seq=3 ttl=64 time=220.378 ms
+84 bytes from 192.168.10.13 icmp_seq=4 ttl=64 time=97.565 ms
+84 bytes from 192.168.10.13 icmp_seq=5 ttl=64 time=137.430 ms
+```
+
+И через l3vni:
+
+![image](https://github.com/user-attachments/assets/b5455617-711a-4209-be96-8e9d6abca2b9)
+
+```bash
+VPCS> ping 192.168.30.33
+
+84 bytes from 192.168.30.33 icmp_seq=1 ttl=62 time=129.862 ms
+84 bytes from 192.168.30.33 icmp_seq=2 ttl=62 time=159.687 ms
+84 bytes from 192.168.30.33 icmp_seq=3 ttl=62 time=267.316 ms
+84 bytes from 192.168.30.33 icmp_seq=4 ttl=62 time=167.390 ms
+84 bytes from 192.168.30.33 icmp_seq=5 ttl=62 time=118.486 ms
+```
+
+Проверки увенчались успехом.
+
+Теперь я отключу один линк в сторону leaf-2 от sw-1:
+
+![image](https://github.com/user-attachments/assets/8b5507e1-449f-4fdc-8a99-48821431903f)
+
+![image](https://github.com/user-attachments/assets/9552dfb0-dd3b-4038-9575-778b863311d3)
+
+```bash
+VPCS> ping 192.168.10.13
+
+84 bytes from 192.168.10.13 icmp_seq=1 ttl=64 time=88.794 ms
+84 bytes from 192.168.10.13 icmp_seq=2 ttl=64 time=287.793 ms
+84 bytes from 192.168.10.13 icmp_seq=3 ttl=64 time=121.459 ms
+84 bytes from 192.168.10.13 icmp_seq=4 ttl=64 time=227.837 ms
+84 bytes from 192.168.10.13 icmp_seq=5 ttl=64 time=101.557 ms
+```
+Как видим, связность не потерялась, трафик пошел лишь в сторону Leaf-1.

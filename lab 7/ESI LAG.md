@@ -313,3 +313,172 @@ VPCS> ping 192.168.10.13
 84 bytes from 192.168.10.13 icmp_seq=5 ttl=64 time=101.557 ms
 ```
 Как видим, связность не потерялась, трафик пошел лишь в сторону Leaf-1.
+
+В заключении добавляю таблицы evpn для каждого типа наших маршрутов с Leaf-1:
+
+Type 1:
+
+```bash
+Leaf-1#sh bgp evpn route-type auto-discovery
+BGP routing table information for VRF default
+Router identifier 10.1.1.11, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.1.11:10 auto-discovery 0 0000:0000:0000:0000:1111
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:20 auto-discovery 0 0000:0000:0000:0000:1111
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:30 auto-discovery 0 0000:0000:0000:0000:1111
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:10 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:10 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:20 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:20 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:30 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:30 auto-discovery 0 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >      RD: 10.1.1.11:1 auto-discovery 0000:0000:0000:0000:1111
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:1 auto-discovery 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:1 auto-discovery 0000:0000:0000:0000:1111
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >      RD: 10.1.1.11:10 auto-discovery 0 0000:0000:0000:0000:1112
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:20 auto-discovery 0 0000:0000:0000:0000:1112
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:30 auto-discovery 0 0000:0000:0000:0000:1112
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:10 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:10 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:20 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:20 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:30 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:30 auto-discovery 0 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >      RD: 10.1.1.11:1 auto-discovery 0000:0000:0000:0000:1112
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:1 auto-discovery 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:1 auto-discovery 0000:0000:0000:0000:1112
+                                 10.1.1.12             -       100     0       65000 65002 i
+```
+
+Type 2:
+
+```bash
+Leaf-1#sh bgp evpn route-type mac-ip
+BGP routing table information for VRF default
+Router identifier 10.1.1.11, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >Ec    RD: 10.1.1.12:10 mac-ip 0050.7966.680b
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:10 mac-ip 0050.7966.680b
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >      RD: 10.1.1.11:10 mac-ip 0050.7966.680b 192.168.10.11
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.13:10 mac-ip 0050.7966.6813
+                                 10.1.1.13             -       100     0       65000 65003 i
+ *  ec    RD: 10.1.1.13:10 mac-ip 0050.7966.6813
+                                 10.1.1.13             -       100     0       65000 65003 i
+
+```
+
+Type 3:
+
+```bash
+Leaf-1#sh bgp evpn route-type imet
+BGP routing table information for VRF default
+Router identifier 10.1.1.11, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.1.11:10 imet 10.1.1.11
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:11 imet 10.1.1.11
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:20 imet 10.1.1.11
+                                 -                     -       -       0       i
+ * >      RD: 10.1.1.11:30 imet 10.1.1.11
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:10 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:10 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:12 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:12 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:20 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:20 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.12:30 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:30 imet 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.1.13:10 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ *  ec    RD: 10.1.1.13:10 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.1.13:13 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ *  ec    RD: 10.1.1.13:13 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.1.13:20 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ *  ec    RD: 10.1.1.13:20 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.1.13:30 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+ *  ec    RD: 10.1.1.13:30 imet 10.1.1.13
+                                 10.1.1.13             -       100     0       65000 65003 i
+```
+
+Type 4:
+
+```bash
+Leaf-1#sh bgp evpn route-type ethernet-segment
+BGP routing table information for VRF default
+Router identifier 10.1.1.11, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.1.11:1 ethernet-segment 0000:0000:0000:0000:1111 10.1.1.11
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:1 ethernet-segment 0000:0000:0000:0000:1111 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:1 ethernet-segment 0000:0000:0000:0000:1111 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ * >      RD: 10.1.1.11:1 ethernet-segment 0000:0000:0000:0000:1112 10.1.1.11
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.1.12:1 ethernet-segment 0000:0000:0000:0000:1112 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+ *  ec    RD: 10.1.1.12:1 ethernet-segment 0000:0000:0000:0000:1112 10.1.1.12
+                                 10.1.1.12             -       100     0       65000 65002 i
+```

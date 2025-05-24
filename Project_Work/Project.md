@@ -502,3 +502,236 @@ end
 
 На нем нет Spine-2 в каждом PD, нет sw-2, потому что ресурсы eve-ng ограничены, сейчас на скрине PD02 выключен, выключены еще некоторые другие устройства. К сожалению, ВМ, на котороый развернута eve-ng не потянула работу всех устройств одновременно.
 
+### Внешний контур:
+
+Также очень хотелось отразить взаимодействие клиентских хостов не только внутри облака между разными PD, но и иметь выход во внешний мир. Например, стык с офисом клиента, где маршруты принимаются и анонсируется EVPN-фабрикой для обеспечения связности клиенту извне.
+
+Поэтому я добавил внешний контур, а именно Ext-leaf-1, второго нет по той же причине утилизации лабной VM.
+
+Прикладываю его настройку:
+
+```bash
+EXT-leaf-1#sh run
+! Command: show running-config
+! device: EXT-leaf-1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+username bartnik secret sha512 $6$LmQVpTdMwhgyi0/x$CvoUz0bHKjnYvDwATGwTXE653WS9bb5y/X7Gjj2fm/ZfAWngHRxFbCApA0h2l7EzTRf/XpbYTktB86H2ODaem0
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no logging monitor
+!
+logging level BGP informational
+!
+hostname EXT-leaf-1
+!
+spanning-tree mode mstp
+!
+vlan 444
+   name for_Office
+!
+vrf instance L3VNI
+!
+interface Port-Channel1
+!
+interface Port-Channel2
+!
+interface Ethernet1
+   description up_pd02-Spine-1
+   no switchport
+   ip address 40.40.40.1/31
+!
+interface Ethernet2
+   description ext_office
+   mtu 9214
+   switchport trunk allowed vlan 444
+   switchport mode trunk
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+   description ti_sw-1
+!
+interface Ethernet6
+   description ti_sw-2
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 4.4.4.1/32
+!
+interface Management1
+!
+interface Vlan444
+   description ext_Office
+   vrf L3VNI
+   ip address 50.50.50.0/31
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vrf L3VNI vni 10777
+!
+ip routing
+ip routing vrf L3VNI
+!
+ip prefix-list PL_CONNECT seq 10 permit 4.4.4.1/32
+!
+route-map RM_CONNECT permit 10
+   match ip address prefix-list PL_CONNECT
+!
+router bgp 65040
+   router-id 4.4.4.1
+   no bgp default ipv4-unicast
+   maximum-paths 10 ecmp 10
+   neighbor Office peer group
+   neighbor Office remote-as 65050
+   neighbor Office send-community extended
+   neighbor Office maximum-routes 100
+   neighbor SPINE peer group
+   neighbor SPINE send-community
+   neighbor SPINE maximum-routes 100
+   neighbor SPINE_EVPN peer group
+   neighbor SPINE_EVPN update-source Loopback0
+   neighbor SPINE_EVPN allowas-in 3
+   neighbor SPINE_EVPN ebgp-multihop 5
+   neighbor SPINE_EVPN send-community
+   neighbor 2.2.2.1 peer group SPINE_EVPN
+   neighbor 2.2.2.1 remote-as 65002
+   neighbor 2.2.2.1 description pd02-Spine-1
+   neighbor 2.2.2.1 allowas-in 3
+   neighbor 40.40.40.0 peer group SPINE
+   neighbor 40.40.40.0 remote-as 65002
+   neighbor 40.40.40.0 description pd02-Spine-1
+   neighbor 40.40.40.0 allowas-in 3
+   redistribute connected route-map RM_CONNECT
+   !
+   address-family evpn
+      neighbor SPINE_EVPN activate
+   !
+   address-family ipv4
+      neighbor Office activate
+      neighbor SPINE activate
+   !
+   vrf L3VNI
+      rd 4.4.4.1:777
+      route-target import evpn 777:1
+      route-target export evpn 777:1
+      neighbor 50.50.50.1 peer group Office
+      neighbor 50.50.50.1 description Client_office
+!
+end
+```
+На этом leaf-коммутаторе создана дополнительная группа для eBGP-соседа, а именно Office.
+Внутри клиентского VRF L3VNI мы поднимаем соседство по eBGP с удаленным офисом, активируем соседа в IPv4.
+
+В офисе клиента настройки следующие:
+
+```bash
+Client_Office#sh run
+! Command: show running-config
+! device: Client-Office (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+username bartnik secret sha512 $6$76MzYmsfUPEKZian$HS5zpl19akWSOEYg6tEPFRC1O2hAroSMiX0DFECuuh3bGxa6373i6YIKWpoZsdixvnMGeKMLY15Y5ZOC0yqfd/
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no logging monitor
+!
+logging level BGP informational
+!
+hostname Client_Office
+!
+spanning-tree mode mstp
+!
+vlan 444
+   name for_Office
+!
+vlan 555
+   name Office_vmware_edge
+!
+vrf instance L3VNI
+!
+interface Ethernet1
+   description up_ext-leaf-1
+   mtu 9214
+   switchport trunk allowed vlan 444
+   switchport mode trunk
+!
+interface Ethernet2
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   description Office_vmware_edge
+   switchport access vlan 555
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 5.5.5.1/32
+!
+interface Management1
+!
+interface Vlan444
+   description ext_Office
+   vrf L3VNI
+   ip address 50.50.50.1/31
+!
+interface Vlan555
+   vrf L3VNI
+   ip address 172.16.0.1/24
+!
+ip routing
+ip routing vrf L3VNI
+!
+router bgp 65050
+   router-id 5.5.5.1
+   no bgp default ipv4-unicast
+   neighbor Office peer group
+   neighbor Office remote-as 65040
+   neighbor Office send-community extended
+   neighbor Office maximum-routes 100
+   !
+   address-family ipv4
+      neighbor Office activate
+   !
+   vrf L3VNI
+      rd 4.4.4.1:777
+      route-target import evpn 777:1
+      route-target export evpn 777:1
+      neighbor 50.50.50.0 peer group Office
+      neighbor 50.50.50.0 description ext-leaf-1
+      redistribute connected
+!
+end
+```
+
+Тут мы создаем одну группу соседей Office, активируем ее в IPv4 и анонсируем подключенные сети внутри клиентского VRF.
+
+### Проверка доступности:
+
+Сначала мы проверим доступность через L2VNI между PD01 и PD02:
+

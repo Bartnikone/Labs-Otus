@@ -379,3 +379,120 @@ no ip routing
 !
 end
 ```
+### Настройка связности между разными POD'ами:
+
+Чтобы обеспечить передачу инкапсулированного в vxlan-туннель трафика на уровне Spine между разными PD, чтобы достичь хостов, подключенных за leaf-коммутаторами этих PD, я использую eBGP-пиринг, представлю типовую настройку соседнего PD02-Spine-1:
+
+```bash
+PD02-Spine-1#sh run
+! Command: show running-config
+! device: PD02-Spine-1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+username bartnik role network-admin secret sha512 $6$GCiP0nTeoHJHcJ3g$O9eiUZWBEgahwsC92NiPwPqS5Iqy9u4X2qxGrwgx5ibaAeLXPknUgwZEyzuZxdMkdKA2Q59JzL02BIUBkRtIy.
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname PD02-Spine-1
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   description down_pd02-leaf-1
+   no switchport
+   ip address 20.20.20.0/31
+!
+interface Ethernet2
+   description down_pd02-leaf-2
+   no switchport
+   ip address 20.20.20.2/31
+!
+interface Ethernet3
+   description down_ext-leaf-1
+   no switchport
+   ip address 40.40.40.0/31
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   description pd03-Spine-1
+   no switchport
+   ip address 172.16.0.2/31
+!
+interface Ethernet8
+   no switchport
+   ip address 172.16.0.1/31
+!
+interface Loopback0
+   ip address 2.2.2.1/32
+!
+interface Management1
+!
+ip routing
+!
+ip prefix-list PL_CONNECT seq 10 permit 2.2.2.1/32
+!
+route-map RM_CONNECT permit 10
+   match ip address prefix-list PL_CONNECT
+!
+router bgp 65002
+   router-id 2.2.2.1
+   no bgp default ipv4-unicast
+   neighbor BORDER peer group
+   neighbor BORDER send-community
+   neighbor BORDER maximum-routes 100
+   neighbor LEAF peer group
+   neighbor LEAF send-community
+   neighbor LEAF maximum-routes 100
+   neighbor LEAF_EVPN peer group
+   neighbor LEAF_EVPN next-hop-unchanged
+   neighbor LEAF_EVPN update-source Loopback0
+   neighbor LEAF_EVPN ebgp-multihop 5
+   neighbor LEAF_EVPN send-community extended
+   neighbor 2.2.2.2 peer group LEAF_EVPN
+   neighbor 2.2.2.2 remote-as 65020
+   neighbor 2.2.2.2 description pd02-leaf-1
+   neighbor 2.2.2.3 peer group LEAF_EVPN
+   neighbor 2.2.2.3 remote-as 65020
+   neighbor 2.2.2.3 description pd02-leaf-2
+   neighbor 4.4.4.1 peer group LEAF_EVPN
+   neighbor 4.4.4.1 remote-as 65040
+   neighbor 4.4.4.1 description ext-leaf-1
+   neighbor 20.20.20.1 peer group LEAF
+   neighbor 20.20.20.1 remote-as 65020
+   neighbor 20.20.20.1 description pd02-leaf-1
+   neighbor 20.20.20.3 peer group LEAF
+   neighbor 20.20.20.3 remote-as 65020
+   neighbor 20.20.20.3 description pd02-leaf-2
+   neighbor 40.40.40.1 peer group LEAF
+   neighbor 40.40.40.1 remote-as 65040
+   neighbor 40.40.40.1 description ext-leaf-1
+   neighbor 172.16.0.0 peer group BORDER
+   neighbor 172.16.0.0 remote-as 65001
+   neighbor 172.16.0.0 description PD01-Spine-1
+   neighbor 172.16.0.3 peer group BORDER
+   neighbor 172.16.0.3 remote-as 65003
+   neighbor 172.16.0.3 description PD03-Spine-1
+   redistribute connected route-map RM_CONNECT
+   !
+   address-family evpn
+      neighbor BORDER activate
+      neighbor LEAF_EVPN activate
+   !
+   address-family ipv4
+      neighbor BORDER activate
+      neighbor LEAF activate
+!
+end
+```
+Я поднимаю соседство с другими Spine в группе BORDER. Активирую их как в IPv4, чтобы обменяться ipv4-префиксами, так и в evpn, чтобы они могли передавать друг другу EVPN-маршруты, и Leaf из разных POD имели связность через Vxlan.
+

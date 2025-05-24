@@ -216,4 +216,103 @@ router bgp 65010
 end
 PD01-leaf-1#
 ```
+И настройка PD01-Spine-1:
 
+```bash
+PD01-Spine-1#sh run
+! Command: show running-config
+! device: PD01-Spine-1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+username bartnik role network-admin secret sha512 $6$fO2caICAo8lwS1QM$GaWxFbSSMHF19ooXA7EyJw2xwWzAVajCQnPa4yhdzuJKa.sw.8DhH2aIv5iEcFknBBG2PqnMWjYLenk4ZP1iW0
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname PD01-Spine-1
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   description down_pd01-leaf-1
+   no switchport
+   ip address 10.10.10.0/31
+!
+interface Ethernet2
+   description down_pd01-leaf-2
+   no switchport
+   ip address 10.10.10.2/31
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+   description PD02-spine-1
+   no switchport
+   ip address 172.16.0.0/31
+!
+interface Loopback0
+   ip address 1.1.1.1/32
+!
+interface Management1
+!
+ip routing
+!
+ip prefix-list PL_CONNECT seq 10 permit 1.1.1.1/32
+!
+route-map RM_CONNECT permit 10
+   match ip address prefix-list PL_CONNECT
+!
+router bgp 65001
+   router-id 1.1.1.1
+   no bgp default ipv4-unicast
+   neighbor BORDER peer group
+   neighbor BORDER send-community
+   neighbor BORDER maximum-routes 100
+   neighbor LEAF peer group
+   neighbor LEAF send-community
+   neighbor LEAF maximum-routes 100
+   neighbor LEAF_EVPN peer group
+   neighbor LEAF_EVPN next-hop-unchanged
+   neighbor LEAF_EVPN update-source Loopback0
+   neighbor LEAF_EVPN ebgp-multihop 5
+   neighbor LEAF_EVPN send-community extended
+   neighbor 1.1.1.2 peer group LEAF_EVPN
+   neighbor 1.1.1.2 remote-as 65010
+   neighbor 1.1.1.2 description pd01-leaf-1
+   neighbor 1.1.1.3 peer group LEAF_EVPN
+   neighbor 1.1.1.3 remote-as 65010
+   neighbor 1.1.1.3 description pd01-leaf-2
+   neighbor 10.10.10.1 peer group LEAF
+   neighbor 10.10.10.1 remote-as 65010
+   neighbor 10.10.10.1 description pd01-leaf-1
+   neighbor 10.10.10.3 peer group LEAF
+   neighbor 10.10.10.3 remote-as 65010
+   neighbor 10.10.10.3 description pd01-leaf-2
+   neighbor 172.16.0.1 peer group BORDER
+   neighbor 172.16.0.1 remote-as 65002
+   neighbor 172.16.0.1 description PD02-spine-1
+   redistribute connected route-map RM_CONNECT
+   !
+   address-family evpn
+      neighbor BORDER activate
+      neighbor LEAF_EVPN activate
+   !
+   address-family ipv4
+      neighbor BORDER activate
+      neighbor LEAF activate
+!
+end
+PD01-Spine-1#
+```

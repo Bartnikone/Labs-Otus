@@ -214,7 +214,6 @@ router bgp 65010
       redistribute static
 !
 end
-PD01-leaf-1#
 ```
 И настройка PD01-Spine-1:
 
@@ -314,5 +313,69 @@ router bgp 65001
       neighbor LEAF activate
 !
 end
-PD01-Spine-1#
+```
+К Leaf-коммутаторам ко всем PD подключены PD-sw-1, они служат коммутаторами, в которые включаются клиентские хосты, по задумке, на этих SW есть стык с физическими серверами клиента, на которых крутится какая-либо виртуализация. К гипервизорам через bridge-ноды подключены SW во всех PD, трафик инкапсулируется во Vlan и проходит в Trunk-порт в сторону Leaf. Порты в сторону Leaf собраны в Po1. Leaf-коммутаторы в свою очеред собраны в evpn ESI, чтобы исключить петли на этом уровне и обеспечить отказоустойчивость.
+
+Настройка SW довольно проста:
+
+```bash
+PD01-sw-1# sh run
+! Command: show running-config
+! device: PD01-sw-1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+username bartnik role network-admin secret sha512 $6$0Cbx.6i.DVZeu/mU$F2knRUthsL                                                                                                                                                             1qKtQm5yWFffv/qv7GOkhABtrZ5CMxtY68KE6pUI6/znc1iShqnBJTCfXIu4I8J6ykgFsgvixlj.
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model ribd
+!
+hostname PD01-sw-1
+!
+spanning-tree mode mstp
+!
+vlan 111
+   name for_L3VNI
+!
+vlan 666
+   name for_L2VNI
+!
+interface Port-Channel1
+   description up_pd01-leaf-1|leaf-2
+   mtu 9214
+   switchport mode trunk
+   lacp system-id 0010.0101.0001
+!
+interface Ethernet1
+   description pd01-leaf-1
+   channel-group 1 mode active
+!
+interface Ethernet2
+   description pd01-leaf-2
+   channel-group 1 mode active
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   description pd01-srv-1
+   switchport access vlan 111
+!
+interface Ethernet8
+   description pd01-srv-2
+   switchport access vlan 666
+!
+interface Management1
+!
+no ip routing
+!
+end
 ```

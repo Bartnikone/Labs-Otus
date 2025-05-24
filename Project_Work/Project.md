@@ -27,6 +27,72 @@
 3.Обосновать выбор настраиваемых технологий.
 ```
 
+### Адресный план:
+
+```bash
+POD	Host	Interface	IP address/vlan	Description	
+PD01	PD01-Spine-1	Loopback 0	1.1.1.1	Lo0	
+PD01	PD01-Spine-1	Eth1	10.10.10.0	leaf-1	
+PD01	PD01-Spine-1	Eth2	10.10.10.2	leaf-2	
+PD01	PD01-leaf-1	Loopback 0	1.1.1.2	Lo0	
+PD01	PD01-leaf-1	Eth1	10.10.10.1	Spine	
+PD01	PD01-leaf-1	Eth2	Vlan111	sw1	
+PD01	PD01-leaf-1	Po1	Trunk	LACP	
+PD01	PD01-leaf-2	Loopback 0	1.1.1.3	Lo0	
+PD01	PD01-leaf-2	Eth1	10.10.10.3	Spine	
+PD01	PD01-leaf-2	Eth2	Vlan666	sw1	
+PD01	PD01-leaf-2	Po1	Trunk	LACP	
+PD01	PD01-sw-1	Eth1	Vlan111	leaf-1	
+PD01	PD01-sw-1	Eth2	Vlan666	leaf-2	
+PD01	PD01-sw-1	Eth7	192.168.1.0/24	srv-1	
+PD01	PD01-sw-1	Eth8	192.168.66.0/24	srv-2	
+PD01	PD01-sw-1	Po1	Trunk	LACP	
+					
+PD02	PD02-Spine-1	Loopback 0	2.2.2.1	Lo0	
+PD02	PD02-Spine-1	Eth1	20.20.20.0	leaf-1	
+PD02	PD02-Spine-1	Eth2	20.20.20.2	leaf-2	
+PD02	PD02-Spine-1	Eth3	40.40.40.0	ext-leaf	
+PD02	PD02-leaf-1	Loopback 0	2.2.2.2	Lo0	
+PD02	PD02-leaf-1	Eth1	20.20.20.1	Spine	
+PD02	PD02-leaf-1	Eth2	Vlan222	sw1	
+PD02	PD02-leaf-1	Po1	Trunk	LACP	
+PD02	PD02-leaf-2	Loopback 0	2.2.2.3	Lo0	
+PD02	PD02-leaf-2	Eth1	20.20.20.3	Spine	
+PD02	PD02-leaf-2	Eth2	Vlan666	sw1	
+PD02	PD02-leaf-2	Po1	Trunk	LACP	
+PD02	PD02-sw-1	Eth1	Vlan222	leaf-1	
+PD02	PD02-sw-1	Eth2	Vlan666	leaf-2	
+PD02	PD02-sw-1	Eth7	192.168.2.0/24	srv-1	
+PD02	PD02-sw-1	Eth8	192.168.66.0/24	srv-2	
+PD02	PD02-sw-1	Po1	Trunk	LACP	
+					
+					
+PD03	PD03-Spine-1	Loopback 0	3.3.3.1	Lo0	
+PD03	PD03-Spine-1	Eth1	30.30.30.0	leaf-1	
+PD03	PD03-Spine-1	Eth2	30.30.30.2	leaf-2	
+PD03	PD03-leaf-1	Loopback 0	3.3.3.2	Lo0	
+PD03	PD03-leaf-1	Eth1	30.30.30.1	Spine	
+PD03	PD03-leaf-1	Eth2	Vlan333	sw1	
+PD03	PD03-leaf-1	Po1	Trunk	LACP	
+PD03	PD03-leaf-2	Loopback 0	3.3.3.3	Lo0	
+PD03	PD03-leaf-2	Eth1	30.30.30.3	Spine	
+PD03	PD03-leaf-2	Eth2	Vlan666	sw1	
+PD03	PD03-leaf-2	Po1	Trunk	LACP	
+PD03	PD03-sw-1	Eth1	Vlan333	leaf-1	
+PD03	PD03-sw-1	Eth2	Vlan666	leaf-2	
+PD03	PD03-sw-1	Eth7	192.168.3.0/24	srv-1	
+PD03	PD03-sw-1	Eth8	192.168.66.0/24	srv-2	
+PD03	PD03-sw-1	Po1	Trunk	LACP	
+					
+EXT	EXT-leaf-1	Loopback 0	4.4.4.1	Lo0	
+EXT	EXT-leaf-1	Eth1	40.40.40.1	Spine	
+EXT	EXT-leaf-1	Eth2	50.50.50.0	Client_Office	
+EXT	EXT-leaf-1	Vlan444	172.16.0.0/24	ext_vlan	
+Client_Office	Client_Office	Loopback 0	5.5.5.1	Lo0	
+Client_Office	Client_Office	Eth1	50.50.50.1	Ext-leaf	
+Client_Office	Client_Office	Eth7	Vlan555	office_srv	
+```
+
 ### Настройка POD:
 
 Для обеспечения связности между Loopback-адресами я выбрал протокол eBGP, на физических стыках я поднимаю eBGP-пиринг, а затем анонсирую с них адреса Loopback.

@@ -735,3 +735,19 @@ end
 
 Сначала мы проверим доступность через L2VNI между PD01 и PD02:
 
+Между VPC36 и VPC8 в PD01-PD02 через L2VNI 10666:
+
+![image](https://github.com/user-attachments/assets/77dfb375-890f-4191-9ce5-1fbe667b78e8)
+
+![image](https://github.com/user-attachments/assets/2d4d59d3-f3cf-4611-a136-4a07903e2a94)
+
+Теперь проверим доступность внутри VRF, сразу между PD01 и EXT-площадкой:
+
+![image](https://github.com/user-attachments/assets/83a2847b-d28c-405e-95bf-2099ad20ae7f)
+
+![image](https://github.com/user-attachments/assets/1e807312-1cc9-4e6f-aacd-afa2a0a76433)
+
+Ну и между PD01-PD02 тоже, пришлось отключить PD03 полностью, чтобы показать хотя бы с одной стороны ping:
+
+![image](https://github.com/user-attachments/assets/ae1d5724-00a3-4167-ada2-5edd011ddef3)
+

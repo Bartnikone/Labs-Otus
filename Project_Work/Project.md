@@ -751,3 +751,15 @@ end
 
 ![image](https://github.com/user-attachments/assets/ae1d5724-00a3-4167-ada2-5edd011ddef3)
 
+### Что знал бы клиент:
+
+И самое важное, как видел бы клиент в своем офисе маршруты до хостов из облака в разных его PD:
+
+![image](https://github.com/user-attachments/assets/8ca851c1-7f4c-4c8d-9e1b-94066160d783)
+
+Что знали бы Leaf'ы с точки зрения маршрутов в таблице VRF и в evpn:
+
+![image](https://github.com/user-attachments/assets/f2e86e99-349a-41dc-8b03-c64d6c1386b4)
+
+### Заключение:
+Таким образом удалось настроить связность в L2VPN и L3VPN между разными PD клиента и подружить все это с внешним клиентским офисом.
